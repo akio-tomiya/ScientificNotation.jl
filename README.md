@@ -2,9 +2,9 @@
 
 This is a package to make values and error in the scientific notation.
 
-<font color="red">This package is a developping package, 
+**This package is a developping package, 
 Please use use it carefully. 
-There some known bugs.</font>
+There some known bugs.**
 
 # Install and usage
 ```julia
