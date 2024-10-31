@@ -3,32 +3,48 @@ module ScientificNotation
 # Write your package code here.
 export format_value_with_error
 
-function format_value_with_error_bare(value::Number, error::Number)
+using Printf
+
+function final_decimal(x)
+    if x == floor(x)
+        return Int(x)
+    else
+        return x
+    end
+end
+function format_value_with_error_bare(value::Number, error::Number; debug=false)
+    if debug
+        println("Input: $value $error")
+    end
     if error < 0
         println("Warning! Error should be positive but error=$error")
     end
     error = abs(error)
-    if error< eps()
+    if error < eps()
         println("Warning! Error is too small (error = $error)")
-        return value,error
+        return value, error
     end
     error_magnitude = -floor(Int, log10(error))
-    significant_digits = error_magnitude+1
+    significant_digits = error_magnitude + 1
     rounded_value = round(value, digits=significant_digits)
     rounded_error = round(error, digits=significant_digits)
-    return rounded_value,rounded_error
+    return rounded_value, rounded_error
 end
-function format_value_with_error_naive(value::Number, error::Number)
+
+function format_value_with_error_naive(value::Number, error::Number; debug=false)
+    if debug
+        println("Input: $value $error")
+    end
     rounded_value, rounded_error = format_value_with_error_bare(value, error)
-    if error<eps()
+    if error < eps()
         println("Warning! Error is too small (error = $error)")
-        return value,error
+        return value, error
     end
     error_magnitude = -floor(Int, log10(error))
-    significant_digits = error_magnitude+1
-    rounded_error=rounded_error*10^(significant_digits)
-    rounded_error_int = round(Int,rounded_error)
-    return rounded_value,rounded_error_int
+    significant_digits = error_magnitude + 1
+    rounded_error = rounded_error * 10^significant_digits
+    rounded_error_int = round(Int, rounded_error)
+    return rounded_value, rounded_error_int
 end
 
 """
@@ -62,27 +78,52 @@ julia> format_value_with_error(1.23456, 0.01234)
 julia> format_value_with_error(0.123456, 0.001234)
 "1.23(12)\\times 10^{-1}"
 """
-function format_value_with_error(value::Number, error::Number)
+function format_value_with_error(value::Number, error::Number; debug=false)
+    if debug
+        println("Input: $value $error")
+    end
     sgn = ""
-    if value<0
+    if value < 0
         sgn = "-"
-        value = -value
+        value = abs(value)
     end
     rounded_value, int_rounded_error = format_value_with_error_naive(value, error)
-    if abs(value)< eps()
-        println("Warning! value is too small (value = $value)")
-        return "$value$error"
-    end
     value_magnitude = -floor(Int, log10(value))
-    if value_magnitude<=0
-        if value_magnitude<=-1
-            rounded_value_int=round(Int,rounded_value)
-            return "$sgn$rounded_value_int($int_rounded_error)"
-        end
+    if value_magnitude==0
         return "$sgn$rounded_value($int_rounded_error)"
     end
-    rounded_value=rounded_value*10^(value_magnitude)
-    return "$sgn$rounded_value($int_rounded_error) \\times 10^{-$value_magnitude}"
+    if value_magnitude<0
+        rounded_value_int = final_decimal(rounded_value) #round(Int, rounded_value)
+        return "$sgn$rounded_value_int($int_rounded_error)"
+    end
+    rounded_value, int_rounded_error = format_value_with_error_naive(value, error)
+    value_magnitude = -floor(Int, log10(value))
+    scaled_value = rounded_value*10^(value_magnitude)
+    return "$sgn$scaled_value($int_rounded_error)\\times10^{-$value_magnitude}"
+    #return string(sgn, @sprintf("%.*f", significant_digits - 1, rounded_value), "(", int_rounded_error, ") \\times 10^{", -value_magnitude, "}")
+    #=
+    if abs(value) < eps()
+        println("Warning! value is too small (value = $value)")
+        return "$value($error)"
+    end
+    value_magnitude = -floor(Int, log10(value))
+    significant_digits = value_magnitude+floor(Int, log10(error)) + 2  # 誤差の有効桁数に基づく丸め桁数
+    #println("significant_digits $significant_digits $(typeof(significant_digits))")
+    significant_digits = max(2,significant_digits)
+    #println("significant_digits $significant_digits $(typeof(significant_digits))")
+
+    # フォーマット文字列を動的に構築
+    if value_magnitude <= 0
+        if value_magnitude <= -1
+            rounded_value_int = round(Int, rounded_value)
+            return string(sgn, rounded_value_int, "(", int_rounded_error, ")")
+        end
+        return string(sgn, @sprintf("%.*f", significant_digits - 1, rounded_value), "(", int_rounded_error, ")")
+    else
+        rounded_value = rounded_value * 10^value_magnitude
+        return string(sgn, @sprintf("%.*f", significant_digits - 1, rounded_value), "(", int_rounded_error, ") \\times 10^{", -value_magnitude, "}")
+    end
+    =#
 end
 
 end
