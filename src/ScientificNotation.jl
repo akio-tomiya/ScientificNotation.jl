@@ -78,7 +78,7 @@ function format_value_with_error(center_value, error_value)
         # Remove trailing zeros and decimal point if necessary
         mantissa_str = replace(mantissa_str, r"0+$"=>"")
         mantissa_str = replace(mantissa_str, r"\.$"=>"")
-        formatted_str = mantissa_str * "($error_digit) × 10^{ $(Int(exponent_center)) }"
+        formatted_str = mantissa_str * "($error_digit) \\times 10^{ $(Int(exponent_center)) }"
     else
         formatted_str = measurement_str * "($error_digit)"
     end
