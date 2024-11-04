@@ -2,8 +2,8 @@
 
 This is a package to make values and error in the scientific notation.
 
-**This package is a developping package, 
-Please use use it carefully. 
+**This package is a developping package, and 
+if you want to use this, please becareful.
 There some known bugs.**
 
 # Install and usage
