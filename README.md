@@ -20,20 +20,22 @@ using ScientificNotation
 Here are some examples of how to use the package to format values with their associated errors:
 
 ```julia
+julia> using ScientificNotation
+
 julia> format_value_with_error(0.9123, 0.001)
-"0.9123(1)"
+"9.12(1) \\times 10^{ -1 }"
 
 julia> format_value_with_error(20100, 100)
-"2.01(10) \\times 10^4"
+"201(1)"
 
 julia> format_value_with_error(-0.05678, 0.00012)
-"-0.0568(1)"
+"-5.67(1) \\times 10^{ -2 }"
 
 julia> format_value_with_error(123.456, 1.234)
-"123.5(12)"
+"123(1)"
 
 julia> format_value_with_error(0.000912, 0.000002)
-"9.12(2) \\times 10^{-4}"
+"9.12(2) \\times 10^{ -4 }"
 ```
 
 # Features
